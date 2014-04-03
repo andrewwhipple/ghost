@@ -1,57 +1,54 @@
-// 1 - Start enchant.js
+
 enchant();
  
-// 2 - On document load 
+
 window.onload = function() {
-	// 3 - Starting point
+
 	var game = new Game(1000, 537);
-	// 4 - Preload resources
-	//Preload new assets
+	
 	game.preload('images/BG.png', 'images/Char.png', 'images/Rock.png');
-	// 5 - Game settings
+
 	game.fps = 30;
 	game.scale = 1;
 	game.onload = function() {
-		// 6 - Once Game finishes loading
-		console.log("Hi, Ocean!");
+	
+
 		var scene = new SceneIntro();
-		// 6 - Start scene
+	
 		game.pushScene(scene);
 	}
 	
-	// 1 - Variables
 	
-	// 7 - Start
 	game.start(); 
 	window.scrollTo(0,0);  
 	
 	var SceneIntro = Class.create(Scene, {
 		initialize: function() {
-			var gameOverLabel, scoreLabel;
+			var introLabel, clickLabel;
 			Scene.apply(this);
 			this.backgroundColor = 'black';
 			
-			gameOverLabel = new Label("WELCOME TO <br> <br>FLOATY GHOST <br> <br> <br>Dodge the flying rocks <br> <br> by clicking where you <br>want to go.");
-			gameOverLabel.x = game.width/3;
-			gameOverLabel.y = 128;
-			gameOverLabel.color = 'white';
-			gameOverLabel.font = '32px strong';
-			gameOverLabel.textAlign = 'center';
+			introLabel = new Label("WELCOME TO <br> <br>FLOATY GHOST <br> <br> <br>Dodge the flying rocks <br> <br> by clicking where you <br>want to go.");
+			introLabel.x = game.width/3;
+			introLabel.y = 128;
+			introLabel.color = 'white';
+			introLabel.font = '32px strong';
+			introLabel.textAlign = 'center';
 			
-			scoreLabel = new Label('Click to start');
-			scoreLabel.x = game.width/3;
-			scoreLabel.y = 30;
-			scoreLabel.color = 'white';
-			scoreLabel.font = '16px strong';
-			scoreLabel.textAlign = 'center';
+			clickLabel = new Label('Click to start');
+			clickLabel.x = game.width/3;
+			clickLabel.y = 30;
+			clickLabel.color = 'white';
+			clickLabel.font = '16px strong';
+			clickLabel.textAlign = 'center';
 			
-			this.addChild(gameOverLabel);
-			this.addChild(scoreLabel);
+			this.addChild(introLabel);
+			this.addChild(clickLabel);
 			
-			this.addEventListener(Event.TOUCH_START, this.touchToRestart);
+			this.addEventListener(Event.TOUCH_START, this.touchToStart);
 			
 		},
-		touchToRestart: function(evt) {
+		touchToStart: function(evt) {
 			var game = Game.instance;
 			game.replaceScene(new SceneGame());
 			
@@ -63,11 +60,10 @@ window.onload = function() {
 		initialize: function() {
 			var game, label, bg, ghost, rockGroup;
 			
-			//Call the superclass constructor
 			Scene.apply(this);
-			//Access to the game singleton instance
+			
 			game = Game.instance;
-			//Create child nodes
+	
 			label = new Label('SCORE<br>0');
 			label.x = this.width/2;
 			label.y = 400;
@@ -81,7 +77,7 @@ window.onload = function() {
 			//replace backgroun size and img
 			bg = new Sprite(1000,537);
 			bg.image = game.assets['images/BG.png'];
-			//place penguin on right side
+			//place ghost on right side
 			ghost = new Ghost();
 			ghost.y = game.height/2 - ghost.height/2;
 			ghost.x = 830;
@@ -96,15 +92,45 @@ window.onload = function() {
 			this.addChild(ghost);
 			
 			this.addEventListener(Event.TOUCH_START, this.handleTouchControl);
+			this.addEventListener(Event.UP_BUTTON_DOWN, this.handleUpControl);
+			this.addEventListener(Event.DOWN_BUTTON_DOWN, this.handleDownControl);
 			this.addEventListener(Event.ENTER_FRAME, this.update);
+			
 			this.generateRockTimer = 0;
 			this.scoreTimer = 0;
 			this.score = 0;
 			this.rockSpeed = 300;
 			
 		},
+		handleDownControl: function(evt) {
+			var laneHeight, curLane, nextLane;
+			laneHeight = 537/3;
+			curLane = Math.floor(this.ghost.y/laneHeight);
+			curLane = Math.max(Math.min(2, curLane), 0);
+			if (curLane < 3) {
+				nextLane = curLane + 1;
+			} else {
+				nextLane = curLane;
+			}
+			this.ghost.switchToLaneNumber(nextLane);
 		
-		//Swap horizontal and vertical lanes
+			
+		},
+		handleUpControl: function(evt) {
+			var laneHeight, curLane, nextLane;
+			laneHeight = 537/3;
+			curLane = Math.floor(this.ghost.y/laneHeight);
+			curLane = Math.max(Math.min(2, curLane), 0);
+			if (curLane > 0) {
+				nextLane = curLane - 1;
+			} else {
+				nextLane = curLane;
+			}
+			this.ghost.switchToLaneNumber(nextLane);
+		
+			
+		},
+	
 		handleTouchControl: function(evt) {
 			var laneHeight, lane;
 			laneHeight = 537/3;
@@ -113,7 +139,7 @@ window.onload = function() {
 			this.ghost.switchToLaneNumber(lane);
 		},
 		update: function(evt) {
-			//Check if its time to create a new set of obstacles
+
 			
 			//Randomize, also add health and points
 			//For now, just get points working, not health
