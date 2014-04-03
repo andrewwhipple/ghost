@@ -249,7 +249,7 @@ window.onload = function() {
 			Scene.apply(this);
 			this.backgroundColor = 'black';
 			
-			gameOverLabel = new Label("GAME OVER, <br><br>FOOLISH MORTAL<br><br>Tap to restart");
+			gameOverLabel = new Label("GAME OVER, <br><br>FOOLISH MORTAL<br><br>Click to restart");
 			gameOverLabel.x = game.width/3;
 			gameOverLabel.y = 128;
 			gameOverLabel.color = 'white';
